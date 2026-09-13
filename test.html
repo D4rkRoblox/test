@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RC7 — Roblox ClientSide</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --bg: #05070d;
+    --panel: rgba(13, 17, 28, .72);
+    --panel-strong: rgba(17, 22, 35, .9);
+    --border: rgba(255,255,255,.09);
+
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --purple: #8b5cf6;
+
+    --text: #f8fafc;
+    --muted: #94a3b8;
+
+    --radius: 18px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--text);
+    font-family: Inter, Arial, sans-serif;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(59,130,246,.18), transparent 28%),
+        radial-gradient(circle at 90% 20%, rgba(139,92,246,.15), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(6,182,212,.1), transparent 30%),
+        var(--bg);
+    overflow-x: hidden;
+}
+
+/* BACKGROUND */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+    background-size: 45px 45px;
+    mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+.orb {
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: .12;
+    pointer-events: none;
+    animation: float 12s ease-in-out infinite;
+}
+
+.orb.one {
+    background: #2563eb;
+    top: 10%;
+    left: -150px;
+}
+
+.orb.two {
+    background: #7c3aed;
+    right: -150px;
+    top: 45%;
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-50px); }
+}
+
+/* NAV */
+
+.nav {
+    position: sticky;
+    top: 18px;
+    z-index: 100;
+    width: min(1120px, calc(100% - 32px));
+    margin: 18px auto 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 12px 14px;
+
+    background: rgba(7, 10, 18, .72);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.35),
+        inset 0 1px rgba(255,255,255,.05);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding-left: 8px;
+
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.logo-icon {
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(135deg, var(--blue), var(--purple));
+
+    box-shadow:
+        0 0 25px rgba(59,130,246,.35);
+
+    font-family: "JetBrains Mono";
+    font-size: 13px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 5px;
+}
+
+.nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 9px 13px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.nav a:hover {
+    color: white;
+    background: rgba(255,255,255,.06);
+}
+
+.nav-cta {
+    color: white !important;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    box-shadow: 0 8px 25px rgba(59,130,246,.22);
+}
+
+/* MAIN */
+
+.container {
+    width: min(1120px, calc(100% - 32px));
+    margin: auto;
+}
+
+/* HERO */
+
+.hero {
+    min-height: 680px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    position: relative;
+    padding: 110px 20px 80px;
+}
+
+.hero-content {
+    max-width: 850px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px 12px;
+
+    border: 1px solid rgba(59,130,246,.25);
+    border-radius: 999px;
+
+    background: rgba(59,130,246,.08);
+    color: #93c5fd;
+
+    font-family: "JetBrains Mono";
+    font-size: 11px;
+    margin-bottom: 25px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 12px #22c55e;
+}
+
+.hero h1 {
+    font-size: clamp(58px, 10vw, 110px);
+    line-height: .9;
+    letter-spacing: -7px;
+    font-weight: 800;
+
+    background: linear-gradient(
+        110deg,
+        #fff 20%,
+        #93c5fd 45%,
+        #a78bfa 70%,
+        #fff
+    );
+
+    background-size: 250%;
+    -webkit-background-clip: text;
+    color: transparent;
+
+    animation: gradientMove 7s linear infinite;
+}
+
+@keyframes gradientMove {
+    to {
+        background-position: 250%;
+    }
+}
+
+.hero h1 span {
+    display: block;
+}
+
+.hero-sub {
+    max-width: 620px;
+    margin: 30px auto 0;
+
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 35px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 13px 20px;
+
+    border-radius: 11px;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition: .25s;
+}
+
+.btn-primary {
+    color: white;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    box-shadow: 0 12px 35px rgba(59,130,246,.25);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 45px rgba(59,130,246,.35);
+}
+
+.btn-secondary {
+    color: white;
+    background: rgba(255,255,255,.045);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,.08);
+    transform: translateY(-3px);
+}
+
+/* STATS */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 80px;
+}
+
+.stat {
+    padding: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    background: var(--panel);
+    backdrop-filter: blur(15px);
+
+    transition: .3s;
+}
+
+.stat:hover {
+    transform: translateY(-4px);
+    border-color: rgba(59,130,246,.3);
+}
+
+.stat-number {
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* SECTIONS */
+
+section {
+    scroll-margin-top: 100px;
+    margin-bottom: 90px;
+}
+
+.section-heading {
+    margin-bottom: 28px;
+}
+
+.eyebrow {
+    color: #60a5fa;
+    font-family: "JetBrains Mono";
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 10px;
+    margin-bottom: 10px;
+}
+
+.section-heading h2 {
+    font-size: 34px;
+    letter-spacing: -1.5px;
+}
+
+.section-heading p {
+    color: var(--muted);
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+/* CARDS */
+
+.card {
+    background: linear-gradient(
+        145deg,
+        rgba(18,24,39,.82),
+        rgba(8,11,19,.82)
+    );
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.18),
+        inset 0 1px rgba(255,255,255,.035);
+
+    backdrop-filter: blur(18px);
+}
+
+.about-card {
+    padding: 32px;
+    line-height: 1.8;
+    color: #cbd5e1;
+}
+
+.about-card strong {
+    color: white;
+}
+
+/* FEATURES */
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.feature {
+    padding: 26px;
+    position: relative;
+    overflow: hidden;
+    transition: .3s;
+}
+
+.feature::after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    right: -50px;
+    top: -50px;
+    border-radius: 50%;
+    background: #3b82f6;
+    filter: blur(60px);
+    opacity: .15;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+    border-color: rgba(96,165,250,.25);
+}
+
+.feature-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+    margin-bottom: 20px;
+
+    background: rgba(59,130,246,.1);
+    color: #60a5fa;
+
+    font-size: 18px;
+}
+
+.feature h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.feature p {
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 13px;
+}
+
+/* SCREENSHOTS */
+
+.screenshots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.screenshot {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.screenshot img {
+    width: 100%;
+    display: block;
+    border-radius: 11px;
+    transition: .5s;
+}
+
+.screenshot:hover img {
+    transform: scale(1.025);
+}
+
+/* DOWNLOAD */
+
+.download-card {
+    padding: 42px;
+    position: relative;
+    overflow: hidden;
+}
+
+.download-card::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    right: -120px;
+    top: -150px;
+    border-radius: 50%;
+    background: #2563eb;
+    filter: blur(100px);
+    opacity: .2;
+}
+
+.download-content {
+    position: relative;
+    z-index: 1;
+}
+
+.version {
+    display: inline-block;
+    color: #93c5fd;
+    background: rgba(59,130,246,.1);
+    border: 1px solid rgba(59,130,246,.2);
+    padding: 5px 9px;
+    border-radius: 7px;
+    font: 11px "JetBrains Mono";
+    margin-bottom: 16px;
+}
+
+.download-card h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.download-card p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+/* CHANGELOG */
+
+.timeline {
+    position: relative;
+    padding-left: 28px;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    bottom: 5px;
+    width: 1px;
+    background: linear-gradient(
+        #3b82f6,
+        rgba(59,130,246,.05)
+    );
+}
+
+.change {
+    position: relative;
+    padding: 0 0 30px 20px;
+}
+
+.change::before {
+    content: "";
+    position: absolute;
+    left: -28px;
+    top: 5px;
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50
