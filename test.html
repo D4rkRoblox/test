@@ -1,574 +1,277 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>RC7 — Roblox ClientSide</title>
-
+<title>RC7 Exploit</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
-:root {
-    --bg: #05070d;
-    --panel: rgba(13, 17, 28, .72);
-    --panel-strong: rgba(17, 22, 35, .9);
-    --border: rgba(255,255,255,.09);
-
-    --blue: #3b82f6;
-    --cyan: #06b6d4;
-    --purple: #8b5cf6;
-
-    --text: #f8fafc;
-    --muted: #94a3b8;
-
-    --radius: 18px;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    min-height: 100vh;
-    color: var(--text);
-    font-family: Inter, Arial, sans-serif;
-    background:
-        radial-gradient(circle at 10% 10%, rgba(59,130,246,.18), transparent 28%),
-        radial-gradient(circle at 90% 20%, rgba(139,92,246,.15), transparent 28%),
-        radial-gradient(circle at 50% 100%, rgba(6,182,212,.1), transparent 30%),
-        var(--bg);
-    overflow-x: hidden;
-}
-
-/* BACKGROUND */
-
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-    background-size: 45px 45px;
-    mask-image: linear-gradient(to bottom, black, transparent);
-}
-
-.orb {
-    position: fixed;
-    width: 350px;
-    height: 350px;
-    border-radius: 50%;
-    filter: blur(100px);
-    opacity: .12;
-    pointer-events: none;
-    animation: float 12s ease-in-out infinite;
-}
-
-.orb.one {
-    background: #2563eb;
-    top: 10%;
-    left: -150px;
-}
-
-.orb.two {
-    background: #7c3aed;
-    right: -150px;
-    top: 45%;
-    animation-delay: -5s;
-}
-
-@keyframes float {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-50px); }
-}
-
-/* NAV */
-
-.nav {
-    position: sticky;
-    top: 18px;
-    z-index: 100;
-    width: min(1120px, calc(100% - 32px));
-    margin: 18px auto 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 12px 14px;
-
-    background: rgba(7, 10, 18, .72);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-
-    border: 1px solid var(--border);
-    border-radius: 16px;
-
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.35),
-        inset 0 1px rgba(255,255,255,.05);
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding-left: 8px;
-
-    font-weight: 800;
-    letter-spacing: -.5px;
-}
-
-.logo-icon {
-    width: 36px;
-    height: 36px;
-
-    display: grid;
-    place-items: center;
-
-    border-radius: 10px;
-
-    background:
-        linear-gradient(135deg, var(--blue), var(--purple));
-
-    box-shadow:
-        0 0 25px rgba(59,130,246,.35);
-
-    font-family: "JetBrains Mono";
-    font-size: 13px;
-}
-
-.nav-links {
-    display: flex;
-    gap: 5px;
-}
-
-.nav a {
-    color: var(--muted);
-    text-decoration: none;
-    padding: 9px 13px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    transition: .25s;
-}
-
-.nav a:hover {
-    color: white;
-    background: rgba(255,255,255,.06);
-}
-
-.nav-cta {
-    color: white !important;
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    box-shadow: 0 8px 25px rgba(59,130,246,.22);
-}
-
-/* MAIN */
-
-.container {
-    width: min(1120px, calc(100% - 32px));
-    margin: auto;
-}
-
-/* HERO */
-
-.hero {
-    min-height: 680px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-
-    position: relative;
-    padding: 110px 20px 80px;
-}
-
-.hero-content {
-    max-width: 850px;
-}
-
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-
-    padding: 7px 12px;
-
-    border: 1px solid rgba(59,130,246,.25);
-    border-radius: 999px;
-
-    background: rgba(59,130,246,.08);
-    color: #93c5fd;
-
-    font-family: "JetBrains Mono";
-    font-size: 11px;
-    margin-bottom: 25px;
-}
-
-.status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 12px #22c55e;
-}
-
-.hero h1 {
-    font-size: clamp(58px, 10vw, 110px);
-    line-height: .9;
-    letter-spacing: -7px;
-    font-weight: 800;
-
-    background: linear-gradient(
-        110deg,
-        #fff 20%,
-        #93c5fd 45%,
-        #a78bfa 70%,
-        #fff
-    );
-
-    background-size: 250%;
-    -webkit-background-clip: text;
-    color: transparent;
-
-    animation: gradientMove 7s linear infinite;
-}
-
-@keyframes gradientMove {
-    to {
-        background-position: 250%;
-    }
-}
-
-.hero h1 span {
-    display: block;
-}
-
-.hero-sub {
-    max-width: 620px;
-    margin: 30px auto 0;
-
-    color: var(--muted);
-    font-size: 16px;
-    line-height: 1.8;
-}
-
-.hero-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 35px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-
-    padding: 13px 20px;
-
-    border-radius: 11px;
-    text-decoration: none;
-
-    font-size: 13px;
-    font-weight: 700;
-
-    transition: .25s;
-}
-
-.btn-primary {
-    color: white;
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    box-shadow: 0 12px 35px rgba(59,130,246,.25);
-}
-
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 45px rgba(59,130,246,.35);
-}
-
-.btn-secondary {
-    color: white;
-    background: rgba(255,255,255,.045);
-    border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-    background: rgba(255,255,255,.08);
-    transform: translateY(-3px);
-}
-
-/* STATS */
-
-.stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 80px;
-}
-
-.stat {
-    padding: 24px;
-
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-
-    background: var(--panel);
-    backdrop-filter: blur(15px);
-
-    transition: .3s;
-}
-
-.stat:hover {
-    transform: translateY(-4px);
-    border-color: rgba(59,130,246,.3);
-}
-
-.stat-number {
-    font-size: 27px;
-    font-weight: 800;
-}
-
-.stat-label {
-    color: var(--muted);
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-/* SECTIONS */
-
-section {
-    scroll-margin-top: 100px;
-    margin-bottom: 90px;
-}
-
-.section-heading {
-    margin-bottom: 28px;
-}
-
-.eyebrow {
-    color: #60a5fa;
-    font-family: "JetBrains Mono";
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 10px;
-    margin-bottom: 10px;
-}
-
-.section-heading h2 {
-    font-size: 34px;
-    letter-spacing: -1.5px;
-}
-
-.section-heading p {
-    color: var(--muted);
-    margin-top: 8px;
-    font-size: 14px;
-}
-
-/* CARDS */
-
-.card {
-    background: linear-gradient(
-        145deg,
-        rgba(18,24,39,.82),
-        rgba(8,11,19,.82)
-    );
-
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.18),
-        inset 0 1px rgba(255,255,255,.035);
-
-    backdrop-filter: blur(18px);
-}
-
-.about-card {
-    padding: 32px;
-    line-height: 1.8;
-    color: #cbd5e1;
-}
-
-.about-card strong {
-    color: white;
-}
-
-/* FEATURES */
-
-.features {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-}
-
-.feature {
-    padding: 26px;
-    position: relative;
-    overflow: hidden;
-    transition: .3s;
-}
-
-.feature::after {
-    content: "";
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    right: -50px;
-    top: -50px;
-    border-radius: 50%;
-    background: #3b82f6;
-    filter: blur(60px);
-    opacity: .15;
-}
-
-.feature:hover {
-    transform: translateY(-5px);
-    border-color: rgba(96,165,250,.25);
-}
-
-.feature-icon {
-    width: 42px;
-    height: 42px;
-    display: grid;
-    place-items: center;
-
-    border-radius: 12px;
-    margin-bottom: 20px;
-
-    background: rgba(59,130,246,.1);
-    color: #60a5fa;
-
-    font-size: 18px;
-}
-
-.feature h3 {
-    font-size: 15px;
-    margin-bottom: 8px;
-}
-
-.feature p {
-    color: var(--muted);
-    line-height: 1.65;
-    font-size: 13px;
-}
-
-/* SCREENSHOTS */
-
-.screenshots {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.screenshot {
-    padding: 10px;
-    overflow: hidden;
-}
-
-.screenshot img {
-    width: 100%;
-    display: block;
-    border-radius: 11px;
-    transition: .5s;
-}
-
-.screenshot:hover img {
-    transform: scale(1.025);
-}
-
-/* DOWNLOAD */
-
-.download-card {
-    padding: 42px;
-    position: relative;
-    overflow: hidden;
-}
-
-.download-card::before {
-    content: "";
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    right: -120px;
-    top: -150px;
-    border-radius: 50%;
-    background: #2563eb;
-    filter: blur(100px);
-    opacity: .2;
-}
-
-.download-content {
-    position: relative;
-    z-index: 1;
-}
-
-.version {
-    display: inline-block;
-    color: #93c5fd;
-    background: rgba(59,130,246,.1);
-    border: 1px solid rgba(59,130,246,.2);
-    padding: 5px 9px;
-    border-radius: 7px;
-    font: 11px "JetBrains Mono";
-    margin-bottom: 16px;
-}
-
-.download-card h2 {
-    font-size: 30px;
-    margin-bottom: 10px;
-}
-
-.download-card p {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 25px;
-}
-
-/* CHANGELOG */
-
-.timeline {
-    position: relative;
-    padding-left: 28px;
-}
-
-.timeline::before {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 5px;
-    bottom: 5px;
-    width: 1px;
-    background: linear-gradient(
-        #3b82f6,
-        rgba(59,130,246,.05)
-    );
-}
-
-.change {
-    position: relative;
-    padding: 0 0 30px 20px;
-}
-
-.change::before {
-    content: "";
-    position: absolute;
-    left: -28px;
-    top: 5px;
-
-    width: 9px;
-    height: 9px;
-
-    border-radius: 50
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Tahoma,Arial,sans-serif;font-size:12px;background:#3a6ea5;overflow:hidden}
+body{background:linear-gradient(#5b8fc4 0,#3a6ea5 55%,#2d5b8c 100%)}
+.window{
+ position:absolute;left:50%;top:50%;width:min(1000px,96vw);height:min(720px,92vh);
+ transform:translate(-50%,-50%);background:#ece9d8;border:1px solid #003c74;
+ border-radius:7px 7px 0 0;box-shadow:3px 5px 18px #0008;overflow:hidden;
+}
+.titlebar{
+ height:30px;padding:3px 4px 3px 7px;display:flex;align-items:center;
+ color:#fff;font-weight:bold;font-size:13px;
+ background:linear-gradient(#3c9bf4,#0058b8 55%,#00499b);
+ cursor:move;touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.titlebar .caption{flex:1;pointer-events:none;text-shadow:1px 1px #16416d}
+.winbuttons{display:flex;gap:2px}
+.winbutton{
+ width:22px;height:22px;border:1px solid #fff;border-radius:3px;
+ color:#fff;font-weight:bold;line-height:18px;text-align:center;
+ background:linear-gradient(#5bb0f7,#1264b6);box-shadow:inset 1px 1px #8dcaff;
+ cursor:pointer;padding:0;
+}
+.winbutton:hover{background:linear-gradient(#75c0ff,#2876c5)}
+.winbutton:active{box-shadow:inset 1px 1px #164f8a}
+.menu{
+ height:25px;background:#f4f2e9;border-bottom:1px solid #aaa;
+ display:flex;align-items:center;padding-left:7px;gap:20px
+}
+.menu span{cursor:pointer}.menu span:hover{text-decoration:underline}
+.toolbar{
+ height:39px;background:linear-gradient(#fafafa,#e2e2e2);
+ border-bottom:1px solid #aaa;display:flex;align-items:center;gap:5px;padding:4px 7px
+}
+.toolbtn{
+ height:29px;padding:0 10px;border:1px solid #999;border-radius:2px;
+ background:linear-gradient(#fff,#e5e5e5);font-family:Tahoma;cursor:pointer
+}
+.toolbtn:hover{border-color:#316ac5;background:linear-gradient(#fff,#dbeaff)}
+.toolbtn:active{background:#d5d5d5}
+.address{flex:1;height:25px;background:#fff;border:1px solid #aaa;padding:5px 7px;color:#333}
+.content{height:calc(100% - 94px);display:flex;min-height:0}
+.sidebar{
+ width:190px;flex:none;padding:9px;background:linear-gradient(#d9e9f8,#b9d5ef);
+ border-right:1px solid #8ba9c6;overflow:auto
+}
+.sidebox{margin-bottom:12px;border:1px solid #7a9bbd;background:#eef6fd}
+.sidehead{
+ padding:5px 7px;color:#fff;font-weight:bold;
+ background:linear-gradient(#6da9dc,#3779b5)
+}
+.sidebox button{
+ width:100%;border:0;background:transparent;text-align:left;padding:7px 8px;
+ cursor:pointer;font-family:Tahoma;font-size:12px
+}
+.sidebox button:hover{background:#d9ecff;text-decoration:underline}
+.main{
+ flex:1;overflow:auto;background:#fff;padding:18px;
+ scrollbar-color:#8ba9c6 #e8e8e8
+}
+.hero{
+ padding:18px;margin-bottom:16px;border:1px solid #7c9abb;
+ background:linear-gradient(120deg,#edf6ff,#fff);
+ box-shadow:inset 0 0 0 1px #fff
+}
+h1{margin:0 0 5px;color:#124f8a;font-size:28px}
+h2{color:#174f83;font-size:18px;border-bottom:1px solid #b7c7d8;padding-bottom:5px}
+h3{color:#174f83}
+p{line-height:1.5}
+.xpbutton{
+ display:inline-block;padding:7px 13px;margin:4px 4px 4px 0;
+ border:1px solid #777;border-radius:3px;color:#111;text-decoration:none;
+ background:linear-gradient(#fff,#e5e5e5);box-shadow:inset 1px 1px #fff;
+ cursor:pointer
+}
+.xpbutton:hover{border-color:#316ac5;background:linear-gradient(#fff,#dcecff)}
+.notice{
+ border:1px solid #d4a500;background:#fff8cf;padding:10px;margin:12px 0
+}
+.card{
+ border:1px solid #b7b7b7;background:#fafafa;padding:12px;margin:12px 0
+}
+.screens{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.screenshot{
+ width:100%;display:block;border:1px solid #777;background:#eee
+}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{border:1px solid #aaa;padding:7px;text-align:left}
+th{background:#dce8f5}
+footer{color:#666;border-top:1px solid #ccc;padding-top:10px;margin-top:18px}
+.minimized .menu,.minimized .toolbar,.minimized .content{display:none}
+.minimized{height:30px}
+.maximized{left:0!important;top:0!important;width:100vw!important;height:100vh!important;transform:none!important;border-radius:0}
+@media(max-width:700px){
+ .sidebar{width:145px}
+ .screens{grid-template-columns:1fr}
+ .toolbar .toolbtn:nth-child(2),.toolbar .toolbtn:nth-child(3){display:none}
+}
+@media(max-width:500px){
+ .sidebar{display:none}
+ .main{padding:10px}
+ h1{font-size:22px}
+ .window{width:100vw;height:100vh;left:0;top:0;transform:none;border-radius:0}
+}
+</style>
+</head>
+<body>
+
+<div class="window" id="rc7Window">
+  <div class="titlebar" id="dragBar">
+    <div class="caption">RC7 Exploit</div>
+    <div class="winbuttons">
+      <button class="winbutton" id="minBtn" title="Minimize">_</button>
+      <button class="winbutton" id="maxBtn" title="Maximize">□</button>
+      <button class="winbutton" id="closeBtn" title="Close">×</button>
+    </div>
+  </div>
+
+  <div class="menu">
+    <span onclick="showSection('home')">File</span>
+    <span onclick="showSection('features')">Edit</span>
+    <span onclick="showSection('screenshots')">View</span>
+    <span onclick="showSection('download')">Help</span>
+  </div>
+
+  <div class="toolbar">
+    <button class="toolbtn" onclick="showSection('home')">← Back</button>
+    <button class="toolbtn" onclick="showSection('features')">Forward →</button>
+    <button class="toolbtn" onclick="location.reload()">↻ Refresh</button>
+    <div class="address">C:\\RC7\\Exploit\\Home</div>
+  </div>
+
+  <div class="content">
+    <aside class="sidebar">
+      <div class="sidebox">
+        <div class="sidehead">RC7 Explorer</div>
+        <button onclick="showSection('home')">🏠 Home</button>
+        <button onclick="showSection('features')">⚙ Features</button>
+        <button onclick="showSection('screenshots')">🖼 Screenshots</button>
+        <button onclick="showSection('download')">⬇ Download</button>
+        <button onclick="showSection('changelog')">📄 Changelog</button>
+      </div>
+      <div class="sidebox">
+        <div class="sidehead">Tasks</div>
+        <button onclick="showSection('download')">Download RC7</button>
+        <button onclick="showSection('screenshots')">View screenshots</button>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <section id="home">
+        <div class="hero">
+          <h1>RC7 Exploit</h1>
+          <p>A classic Windows XP-inspired interface for the RC7 project.</p>
+          <a class="xpbutton" href="https://github.com/e1iot77OFFICIAL/Rc7/releases/download/Rc7/RC777.zip">⬇ Download RC7</a>
+          <button class="xpbutton" onclick="showSection('features')">⚙ Features</button>
+        </div>
+        <div class="notice"><b>Notice:</b> This page is a UI/project presentation. It does not contain exploit functionality itself.</div>
+        <div class="card">
+          <h2>Welcome</h2>
+          <p>The interface is intentionally designed like an old Windows XP program, with a blue title bar, classic buttons, an Explorer sidebar, and a movable window.</p>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2>Features</h2>
+        <div class="card">
+          <h3>Windows-XP-Style</h3>
+          <p>Complete window styling with a title bar, minimize, maximize, and close controls.</p>
+        </div>
+        <div class="card">
+          <h3>Touch & Mouse</h3>
+          <p>The window can be moved with a mouse or touch by dragging the title bar.</p>
+        </div>
+        <div class="card">
+          <h3>Navigation</h3>
+          <p>The sidebar works like a small Windows Explorer and jumps to the individual sections.</p>
+        </div>
+      </section>
+
+      <section id="screenshots">
+        <h2>Screenshots</h2>
+        <div class="screens">
+          <div class="card">
+            <h3>Executor</h3>
+            <img class="screenshot" src="./RC7 Exploit_files/Executor.png" alt="Executor Screenshot">
+          </div>
+          <div class="card">
+            <h3>Login</h3>
+            <img class="screenshot" src="./RC7 Exploit_files/Login.png" alt="Login Screenshot">
+          </div>
+        </div>
+      </section>
+
+      <section id="download">
+        <h2>Download</h2>
+        <div class="card">
+          <p>The download button leads to the original RC7 release link.</p>
+          <a class="xpbutton" href="https://github.com/e1iot77OFFICIAL/Rc7/releases/download/Rc7/RC777.zip">⬇ RC777.zip</a>
+        </div>
+      </section>
+
+      <section id="changelog">
+        <h2>Changelog</h2>
+        <table>
+          <tr><th>Version</th><th>Change</th></tr>
+          <tr><td>XP Edition</td><td>Windows XP-inspired interface</td></tr>
+          <tr><td>Touch Update</td><td>Touch-friendly window dragging using Pointer Events</td></tr>
+          <tr><td>UI Update</td><td>New navigation, toolbar, and Explorer sidebar</td></tr>
+        </table>
+        <footer>RC7 Exploit — Retro Windows XP Edition</footer>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const windowBox=document.getElementById("rc7Window");
+const dragBar=document.getElementById("dragBar");
+let dragging=false,activePointerId=null,offsetX=0,offsetY=0;
+
+dragBar.addEventListener("pointerdown",function(e){
+  if(e.target.closest(".winbutton")||windowBox.classList.contains("maximized"))return;
+  dragging=true;activePointerId=e.pointerId;
+  const r=windowBox.getBoundingClientRect();
+  offsetX=e.clientX-r.left;offsetY=e.clientY-r.top;
+  try{dragBar.setPointerCapture(e.pointerId)}catch(err){}
+  dragBar.style.cursor="grabbing";
+  e.preventDefault();
+});
+
+dragBar.addEventListener("pointermove",function(e){
+  if(!dragging||e.pointerId!==activePointerId)return;
+  let x=e.clientX-offsetX,y=e.clientY-offsetY;
+  const maxX=Math.max(0,innerWidth-windowBox.offsetWidth);
+  const maxY=Math.max(0,innerHeight-windowBox.offsetHeight);
+  x=Math.max(0,Math.min(x,maxX));y=Math.max(0,Math.min(y,maxY));
+  windowBox.style.left=x+"px";
+  windowBox.style.top=y+"px";
+  windowBox.style.transform="none";
+  e.preventDefault();
+});
+
+function stopDrag(e){
+  if(activePointerId!==null&&e&&e.pointerId!==undefined&&e.pointerId!==activePointerId)return;
+  dragging=false;activePointerId=null;dragBar.style.cursor="move";
+}
+dragBar.addEventListener("pointerup",stopDrag);
+dragBar.addEventListener("pointercancel",stopDrag);
+dragBar.addEventListener("lostpointercapture",function(){dragging=false;activePointerId=null;dragBar.style.cursor="move"});
+
+document.getElementById("minBtn").onclick=()=>windowBox.classList.toggle("minimized");
+document.getElementById("maxBtn").onclick=()=>{
+  windowBox.classList.toggle("maximized");
+  if(!windowBox.classList.contains("maximized")){
+    windowBox.style.left="50%";windowBox.style.top="50%";windowBox.style.transform="translate(-50%,-50%)";
+  }
+};
+document.getElementById("closeBtn").onclick=()=>windowBox.style.display="none";
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape")windowBox.style.display="none";
+});
+
+function showSection(id){
+  const target=document.getElementById(id);
+  if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+</script>
+</body>
+</html>
